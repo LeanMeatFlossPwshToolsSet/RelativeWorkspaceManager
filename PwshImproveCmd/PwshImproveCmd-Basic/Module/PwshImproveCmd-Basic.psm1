@@ -64,7 +64,7 @@ function Import-ModuleFromGallery{
         if($currentVersion -ne $cloudVersion){
             Update-Module $ModuleName
         }
-        Import-Module $ModuleName -Force $Force
+        Import-Module $ModuleName -Force:$Force
 
     }
 }
