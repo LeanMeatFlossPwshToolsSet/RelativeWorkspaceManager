@@ -52,54 +52,57 @@ New Version need to be tagged $GitNewTaggedVersion
 "
 
 $moduleBaseName=$gitRepoName.Replace("-","")
-Get-ChildItem -Path "$($env:GITHUB_WORKSPACE)/$moduleBaseName" -Directory |ForEach-Object{
+if(Test-Path "$($env:GITHUB_WORKSPACE)/$moduleBaseName"){
+    Get-ChildItem -Path "$($env:GITHUB_WORKSPACE)/$moduleBaseName" -Directory |ForEach-Object{
     
-    $moduleOnCloud=Find-Module -Name $_.Name -ErrorAction Continue
-    # $moduleOnCloud|Write-Host
-    if($moduleOnCloud){
-        $cloudVersion=$moduleOnCloud.Version.Split([string[]]@(".","v"),[System.StringSplitOptions]::RemoveEmptyEntries)
-        for ($i = 0; $i -lt $cloudVersion.Count; $i++) {
-            <# Action that will repeat until the condition is met #>
-            if($taggedVersionArray[$i] -le $cloudVersion[$i]){
-                $taggedVersionArray[$i]=$cloudVersion[$i]
-                if($i -eq 2){
-                    $taggedVersionArray[$i]=(([int]$cloudVersion[$i])+1).ToString()
+        $moduleOnCloud=Find-Module -Name $_.Name -ErrorAction Continue
+        # $moduleOnCloud|Write-Host
+        if($moduleOnCloud){
+            $cloudVersion=$moduleOnCloud.Version.Split([string[]]@(".","v"),[System.StringSplitOptions]::RemoveEmptyEntries)
+            for ($i = 0; $i -lt $cloudVersion.Count; $i++) {
+                <# Action that will repeat until the condition is met #>
+                if($taggedVersionArray[$i] -le $cloudVersion[$i]){
+                    $taggedVersionArray[$i]=$cloudVersion[$i]
+                    if($i -eq 2){
+                        $taggedVersionArray[$i]=(([int]$cloudVersion[$i])+1).ToString()
+                    }
                 }
+                $newSubmitVersion=$taggedVersionArray -join "."
+                if(-not $newSubmitVersion.Equals($submitVersion)){
+                    $submitVersion=$taggedVersionArray -join "."
+                    $GitNewTaggedVersion="v$($submitVersion)"
+                    Write-Host "
+                    Version update
+                    New Version need to be tagged $GitNewTaggedVersion
+                    "
+                }
+                
             }
-            $newSubmitVersion=$taggedVersionArray -join "."
-            if(-not $newSubmitVersion.Equals($submitVersion)){
-                $submitVersion=$taggedVersionArray -join "."
-                $GitNewTaggedVersion="v$($submitVersion)"
-                Write-Host "
-                Version update
-                New Version need to be tagged $GitNewTaggedVersion
-                "
-            }
+        }
+        Update-ModuleManifest -Path (Join-Path $_.FullName "$($_.Name).psd1") -ModuleVersion $submitVersion
+        Test-ModuleManifest -Path (Join-Path $_.FullName "$($_.Name).psd1")
+        if($env:GITHUB_REF_NAME -eq "main"){
+            # main branch methods
+            Publish-Module -Path "$($_.FullName)" -NuGetApiKey $NugetKey -Verbose -Force
             
         }
+        else {
+            # sub branch methods
+            Publish-Module -Path "$($_.FullName)" -NuGetApiKey $NugetKey -WhatIf -Verbose
+           
+        }
     }
-    Update-ModuleManifest -Path (Join-Path $_.FullName "$($_.Name).psd1") -ModuleVersion $submitVersion
-    Test-ModuleManifest -Path (Join-Path $_.FullName "$($_.Name).psd1")
     if($env:GITHUB_REF_NAME -eq "main"){
         # main branch methods
-        Publish-Module -Path "$($_.FullName)" -NuGetApiKey $NugetKey -Verbose -Force
+        "Push tag to Repo"|Write-Host
+        git tag -a $GitNewTaggedVersion $rev -m "Continous Delivery Version Submitted"
+        git push origin "$GitNewTaggedVersion"
         
     }
-    else {
-        # sub branch methods
-        Publish-Module -Path "$($_.FullName)" -NuGetApiKey $NugetKey -WhatIf -Verbose
-       
+    else{
+        "In branch don't push the tag"|Write-Host
     }
 }
-if($env:GITHUB_REF_NAME -eq "main"){
-    # main branch methods
-    "Push tag to Repo"|Write-Host
-    git tag -a $GitNewTaggedVersion $rev -m "Continous Delivery Version Submitted"
-    git push origin "$GitNewTaggedVersion"
-    
-}
-else{
-    "In branch don't push the tag"|Write-Host
-}
+
 
 
