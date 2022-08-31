@@ -20,7 +20,7 @@ New-Item -Path "./$moduleBaseName/$moduleBaseName-$ModuleName/Module" -ItemType 
 New-Item -Path "./$moduleBaseName/$moduleBaseName-$ModuleName/Module/$moduleBaseName-$ModuleName.psm1" -ItemType File -Force
 # New-Item -Path "./$moduleBaseName/$moduleBaseName-$ModuleName/Script" -ItemType Directory -Force
 # New-Item -Path "./$moduleBaseName/$moduleBaseName-$ModuleName/Script/$moduleBaseName-$ModuleName.Classes.ps1" -ItemType File -Force
-New-ModuleManifest -Path "./$moduleBaseName/$moduleBaseName-$ModuleName/$moduleBaseName-$ModuleName.psd1" -Author "LeanMeatFloss" -CompanyName "Song" -Copyright @"
+New-ModuleManifest -Description "$moduleBaseName"  -Path "./$moduleBaseName/$moduleBaseName-$ModuleName/$moduleBaseName-$ModuleName.psd1" -Author "LeanMeatFloss" -CompanyName "Song" -Copyright @"
 MIT License
 
 Copyright (c) 2022 Hansong Li
