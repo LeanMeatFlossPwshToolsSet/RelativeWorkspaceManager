@@ -5,7 +5,12 @@ param(
     $GitHubKey
 )
 $PSVersionTable
-$env:PSModulePath+=[IO.Path]::PathSeparator+"$($env:GITHUB_WORKSPACE)/PwshUtils"
+
+$gitRepoName=($gitUrl.replace(".git","") -split "/")[-1]
+Write-Host "Current git repo name is $gitRepoName"
+$moduleBaseName=$gitRepoName.Replace("-","")
+Write-Host "Current module base name $moduleBaseName"
+$env:PSModulePath+=[IO.Path]::PathSeparator+"$($env:GITHUB_WORKSPACE)/$moduleBaseName"
 
 git config user.name "CD Process"
 git config user.email "CD.Process@users.noreply.github.com"
@@ -25,7 +30,7 @@ $taggedVersions=@()+(git tag -l "v[0-9.]*" --sort="v:refname")
 $taggedVersions|Write-Host
 
 $taggedVersion=$taggedVersions[-1]
-if($LASTEXITCODE -ne 0){
+if($LASTEXITCODE -ne 0 -or(-not $taggedVersion)){
     $taggedVersion="v0.0.1"
     Write-Host "Using $taggedVersion as the init version."
 }
@@ -44,8 +49,7 @@ Write-Host "
 Current Commit $rev
 New Version need to be tagged $GitNewTaggedVersion
 "
-$gitRepoName=($gitUrl.replace(".git","") -split "/")[-1]
-Write-Host "Current git repo name is $gitUgitRepoNamerl"
+
 $moduleBaseName=$gitRepoName.Replace("-","")
 Get-ChildItem -Path "$($env:GITHUB_WORKSPACE)/$moduleBaseName" -Directory |ForEach-Object{
     
