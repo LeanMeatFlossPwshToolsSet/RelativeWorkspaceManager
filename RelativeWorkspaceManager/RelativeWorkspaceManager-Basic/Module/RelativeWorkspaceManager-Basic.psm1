@@ -50,3 +50,12 @@ function Get-RelativePathToWorkspace{
         $FullPath|Get-RelativePath -RootPath (Get-CurrentWorkspace)
     }
 }
+function Get-FileInfoFromRelativePath{
+    param(
+        [Parameter(ValueFromPipeline)]
+        $RelativePath
+    )
+    process{
+        [System.IO.FileInfo]($RelativePath|Get-FullPathFromRelativePathToWorkspace)
+    }
+}
