@@ -44,3 +44,27 @@ function Select-ObjectImproved{
         }
     }
 }
+function Import-ModuleFromGallery{
+    param(
+        [parameter(ValueFromPipeline,Position=1)]
+        [string]
+        $ModuleName,
+        [switch]
+        $Force
+    )
+    process{
+        if(Get-Module $ModuleName){
+
+        }
+        else{
+            Install-Module $ModuleName -Force -Scope CurrentUser
+        }
+        $currentVersion=(Get-Module $ModuleName).Version
+        $cloudVersion=(Find-Module $ModuleName).Version
+        if($currentVersion -ne $cloudVersion){
+            Update-Module $ModuleName
+        }
+        Import-Module $ModuleName $Force
+
+    }
+}
