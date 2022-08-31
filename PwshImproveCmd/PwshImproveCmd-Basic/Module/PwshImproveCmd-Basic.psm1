@@ -68,3 +68,17 @@ function Import-ModuleFromGallery{
 
     }
 }
+function Get-RelativePath{
+    param (
+        [parameter(ValueFromPipeline)]
+        [string]
+        $Path,
+        [parameter(Position=0)]
+        [string]
+        $RootPath
+    )
+    process{
+        [System.IO.Path]::GetRelativePath($RootPath,$Path)
+    }
+    
+}
