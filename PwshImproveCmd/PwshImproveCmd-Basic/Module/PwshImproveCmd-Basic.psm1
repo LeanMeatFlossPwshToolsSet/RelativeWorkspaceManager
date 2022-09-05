@@ -8,40 +8,78 @@ function Join-PathImproved {
         $RightPath=@("")
     )
     process{
-        Join-Path $LeftPath @RightPath
+        Join-Path (Resolve-PathImproved $LeftPath) ($RightPath|Resolve-PathImproved)
     }    
 }
 function Resolve-PathImproved{
     param(
-        [parameter(ValueFromPipeline)]
+        [parameter(ValueFromPipeline,Position=1)]
         [string]
         $Path
     )
     process{
-        $Path|Join-PathImproved
+        $Path -replace "[\\/]+", "$([System.IO.Path]::DirectorySeparatorChar)"
     }
 }
 function Select-ObjectImproved{
     param(
         [parameter(ValueFromPipeline)]
-        [PSCustomObject[]]
         $InputObject,
         [int]
         $First=-1,
-        [scriptblock]
-        $UniqueHashScript
+        [int]
+        $Last=-1,    
+        [scriptblock]    
+        $HashScript
     )
     begin{
         $CurrentOutputNumber=0
+        $CurrentInputObject=[System.Collections.ArrayList]@()
+        $CurrentHashList=@{}
     }
     process{
-        if(($CurrentOutputNumber -ne $First)){
-            if($UniqueHashScript){
-                
+        $continueProcess=$true
+        if($HashScript){     
+            $currentHash=$HashScript.InvokeWithContext($null,@(
+                [psvariable]::new("_",$InputObject)
+            ),$null)[0]
+            if($CurrentHashList.ContainsKey($currentHash)){
+                Write-Verbose "Find duplicate hash $currentHash with $InputObject at $($CurrentHashList[$currentHash])"
+                $continueProcess=$false
             }
-            $CurrentOutputNumber++
-            return $InputObject
+            else{
+                $CurrentHashList[$currentHash]=$InputObject
+            }
         }
+        else{
+
+        }
+        if($continueProcess){
+            if(($Last-eq -1)-and ($CurrentOutputNumber -ne $First)){
+            
+                $CurrentOutputNumber++
+                return $InputObject
+            }
+            elseif($Last -gt 0){
+                $CurrentInputObject.Add($InputObject)|Out-Null
+            }
+        }        
+    }
+    end{
+        if($Last -gt 0){
+            $CurrentInputObject[(0-$Last)..-1]
+        }
+        
+    }
+}
+function Resolve-PSModuleDependenctForPester{
+    param(
+        [parameter(ValueFromPipeline,Position=1)]
+        [string]
+        $ModuleName
+    )
+    process{
+        
     }
 }
 function Import-ModuleFromGallery{
@@ -81,4 +119,103 @@ function Get-RelativePath{
         [System.IO.Path]::GetRelativePath($RootPath,$Path)
     }
     
+}
+function Split-String{
+    param(
+        [parameter(ValueFromPipeline)]
+        [string]
+        $InputString,
+        [parameter(Position=1)]
+        [string]
+        $Seperator
+    )
+    process{
+        $InputString.Split("$Seperator")
+    }
+}
+function Get-FileNameFromPath{
+    param(
+        [parameter(ValueFromPipeline)]
+        [string]
+        $Path
+    )
+    process{
+        ($Path|Resolve-PathImproved|Split-String ([System.IO.Path]::DirectorySeparatorChar) |Select-ObjectImproved -Last 1)
+    }
+}
+function Get-EnvironmentVariable{
+    param(
+        [parameter(ValueFromPipeline)]
+        [string]
+        $Name
+    )
+    process{
+        Get-Item -Path "Env:\$Name"
+    }
+}
+function Set-EnvironmentVariable{
+    param(
+        [parameter(ValueFromPipeline)]
+        [string]
+        $Name,
+        [string]
+        $Value
+    )
+    process{
+        Set-Item -Path "Env:\$Name" -Value $Value
+    }
+}
+function Add-ModulePathToEnv{
+    param(
+        [parameter(ValueFromPipeline)]
+        [string]
+        $Path,
+        [switch]
+        $First
+    )
+    process{
+        $value="PSModulePath"|Get-EnvironmentVariable
+        $paths=[System.Collections.ArrayList]$value.Split("[IO.Path]::PathSeparator")
+        $overWrite=$false
+        if($paths.Contains($Path)){
+            if($First){
+                if($paths[0] -ne $Path){
+                    $paths.Remove($Path)
+                    $paths.Insert(0,$Path)
+                    $overWrite=$true
+                }
+            }
+        }
+        else{
+            if($First){
+                $paths.Insert(0,$Path)
+            }
+            else{
+                $paths.Add($path)
+            }
+            $overWrite=$true
+        }
+        if($overWrite){
+            "PSModulePath"|Set-EnvironmentVariable -Value ($paths -join "[IO.Path]::PathSeparator")
+        }
+    }
+}
+function Remove-ModulePathToEnv{
+    param(
+        [parameter(ValueFromPipeline)]
+        [string]
+        $Path
+    )
+    process{
+        $value="PSModulePath"|Get-EnvironmentVariable
+        $paths=[System.Collections.ArrayList]$value.Split("[IO.Path]::PathSeparator")
+        $overWrite=$false
+        if($paths.Contains($Path)){
+            $overWrite=$true
+            $paths.Remove($Path)
+        }
+        if($overWrite){
+            "PSModulePath"|Set-EnvironmentVariable -Value ($paths -join "[IO.Path]::PathSeparator")
+        }
+    }
 }

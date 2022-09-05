@@ -9,6 +9,12 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v3
+        - uses: dorny/test-reporter@v1
+          with:
+            artifact: test-results
+            name: Pwsh JUnit Tests
+            path: '.TestReports/*.xml'
+            reporter: jest-junit
         - name: Script
           run: ./PSActions/PSGalleryPublish.ps1 -NugetKey ${{ secrets.PS_GALLERY }}
           shell: pwsh

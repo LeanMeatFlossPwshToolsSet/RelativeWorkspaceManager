@@ -16,6 +16,26 @@ $env:PSModulePath+=[IO.Path]::PathSeparator+"$($env:GITHUB_WORKSPACE)/$moduleBas
 git config user.name "CD Process"
 git config user.email "CD.Process@users.noreply.github.com"
 
+# new change here
+# module dependency analysis
+$PublishOrderHash=@{
+
+}
+Get-ChildItem -Path "$($env:GITHUB_WORKSPACE)/$moduleBaseName" -Directory |ForEach-Object{
+    
+    # read psd configuration
+    $subModuleName=$_.Name
+    $PublishOrderHash[$subModuleName]=0
+    $moduleManifestFile=Import-PowerShellDataFile  "$($env:GITHUB_WORKSPACE)/$moduleBaseName/$subModuleName/$subModuleName.psd1"
+    $moduleManifestFile.NestedModules|ForEach-Object{
+        if(Test-Path "$($env:GITHUB_WORKSPACE)/$moduleBaseName/$subModuleName"){
+            if($PublishOrderHash.ContainsKey($_)){
+                $PublishOrderHash[$_]=$PublishOrderHash[$_]+1
+            }
+        }
+    }
+}
+
 
 
 Write-Host "
