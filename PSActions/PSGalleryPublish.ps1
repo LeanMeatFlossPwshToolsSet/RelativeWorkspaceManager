@@ -12,6 +12,10 @@ Write-Host "Current git repo name is $gitRepoName"
 $moduleBaseName=$gitRepoName.Replace("-","")
 Write-Host "Current module base name $moduleBaseName"
 $env:PSModulePath+=[IO.Path]::PathSeparator+"$($env:GITHUB_WORKSPACE)/$moduleBaseName"
+# create temp module folder to by pass the error from depenedenct
+$env:PSModulePath+=[IO.Path]::PathSeparator+"$($env:GITHUB_WORKSPACE)/tempModules"
+New-Item "$($env:GITHUB_WORKSPACE)/tempModules" -ItemType Directory
+
 
 git config user.name "CD Process"
 git config user.email "CD.Process@users.noreply.github.com"
@@ -21,17 +25,23 @@ git config user.email "CD.Process@users.noreply.github.com"
 $PublishOrderHash=@{
 
 }
-Get-ChildItem -Path "$($env:GITHUB_WORKSPACE)/$moduleBaseName" -Directory |ForEach-Object{
-    
-    # read psd configuration
-    $subModuleName=$_.Name
-    $PublishOrderHash[$subModuleName]=0
+
+Get-ChildItem -Path "$($env:GITHUB_WORKSPACE)/$moduleBaseName" -Directory |ForEach-Object{    
+    $subModuleName=$_.Name    
     $moduleManifestFile=Import-PowerShellDataFile  "$($env:GITHUB_WORKSPACE)/$moduleBaseName/$subModuleName/$subModuleName.psd1"
     $moduleManifestFile.NestedModules|ForEach-Object{
         if(Test-Path "$($env:GITHUB_WORKSPACE)/$moduleBaseName/$subModuleName"){
             if($PublishOrderHash.ContainsKey($_)){
                 $PublishOrderHash[$_]=$PublishOrderHash[$_]+1
             }
+            else{
+                $PublishOrderHash[$subModuleName]=1
+            }
+        }
+        else{
+            if(-not (Test-Path "$($env:GITHUB_WORKSPACE)/tempModules/$subModuleName")){
+                New-ModuleManifest -Path "$($env:GITHUB_WORKSPACE)/tempModules/$subModuleName"
+            }            
         }
     }
 }
@@ -73,7 +83,7 @@ New Version need to be tagged $GitNewTaggedVersion
 
 $moduleBaseName=$gitRepoName.Replace("-","")
 if(Test-Path "$($env:GITHUB_WORKSPACE)/$moduleBaseName"){
-    Get-ChildItem -Path "$($env:GITHUB_WORKSPACE)/$moduleBaseName" -Directory |ForEach-Object{
+    Get-ChildItem -Path "$($env:GITHUB_WORKSPACE)/$moduleBaseName" -Directory|Sort-Object {$PublishOrderHash[$_.Name]} -Descending|ForEach-Object{
     
         $moduleOnCloud=Find-Module -Name $_.Name -ErrorAction Continue
         # $moduleOnCloud|Write-Host
