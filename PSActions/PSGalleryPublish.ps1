@@ -43,7 +43,8 @@ Get-ChildItem -Path "$($env:GITHUB_WORKSPACE)/$moduleBaseName" -Directory |ForEa
         }
         else{
             if(-not (Test-Path "$($env:GITHUB_WORKSPACE)/tempModules/$subModuleName")){
-                New-ModuleManifest -Path "$($env:GITHUB_WORKSPACE)/tempModules/$subModuleName"
+                New-Item "$($env:GITHUB_WORKSPACE)/tempModules/$subModuleName" -ItemType Directory
+                New-ModuleManifest -Path "$($env:GITHUB_WORKSPACE)/tempModules/$subModuleName/$subModuleName.psd1"
             }            
         }
     }
