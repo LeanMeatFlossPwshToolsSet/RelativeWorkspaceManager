@@ -9,6 +9,9 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v3
+        - name: Script
+          run: ./PSActions\PSPesterTests.ps1 -NugetKey ${{ secrets.PS_GALLERY }}
+          shell: pwsh
         - uses: dorny/test-reporter@v1
           with:
             name: Pwsh JUnit Tests
