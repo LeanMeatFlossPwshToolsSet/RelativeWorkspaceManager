@@ -14,19 +14,19 @@ Describe "Get-FileNameFromPath" {
 }
 Describe "Resolve-PathImproved" {
     It "Test for Resolve-PathImproved" -Foreach @(
-        @{Validate="C:\sdsdsds\ffff"; Expect=("C:{0}sdsdsds{0}ffff" -f "$([System.IO.Path]::DirectorySeparatorChar)")},
-        @{Validate="C:/sdsdsds\ffff"; Expect=("C:{0}sdsdsds{0}ffff" -f "$([System.IO.Path]::DirectorySeparatorChar)")},
-        @{Validate="C:\sdsdsds/ffff"; Expect=("C:{0}sdsdsds{0}ffff" -f "$([System.IO.Path]::DirectorySeparatorChar)")},
-        @{Validate="C:\sdsdsds/ffff.sss"; Expect=("C:{0}sdsdsds{0}ffff.sss" -f "$([System.IO.Path]::DirectorySeparatorChar)")},
-        @{Validate="C:\\\sdsdsds///ffff.sss"; Expect=("C:{0}sdsdsds{0}ffff.sss" -f "$([System.IO.Path]::DirectorySeparatorChar)")},
-        @{Validate="C:\/\sdsdsds////ffff.sss"; Expect=("C:{0}sdsdsds{0}ffff.sss" -f "$([System.IO.Path]::DirectorySeparatorChar)")}
+        @{Validate="\sdsdsds\ffff"; Expect=("{0}sdsdsds{0}ffff" -f "$([System.IO.Path]::DirectorySeparatorChar)")},
+        @{Validate="/sdsdsds\ffff"; Expect=("{0}sdsdsds{0}ffff" -f "$([System.IO.Path]::DirectorySeparatorChar)")},
+        @{Validate="\sdsdsds/ffff"; Expect=("{0}sdsdsds{0}ffff" -f "$([System.IO.Path]::DirectorySeparatorChar)")},
+        @{Validate="\sdsdsds/ffff.sss"; Expect=("{0}sdsdsds{0}ffff.sss" -f "$([System.IO.Path]::DirectorySeparatorChar)")},
+        @{Validate="\\\sdsdsds///ffff.sss"; Expect=("{0}sdsdsds{0}ffff.sss" -f "$([System.IO.Path]::DirectorySeparatorChar)")},
+        @{Validate="\/\sdsdsds////ffff.sss"; Expect=("{0}sdsdsds{0}ffff.sss" -f "$([System.IO.Path]::DirectorySeparatorChar)")}
     ){
         $Validate|Resolve-PathImproved|Should -Be $Expect
     }
 }
 Describe "Join-PathImproved" {
     It "Test for Join-PathImproved" -Foreach @(
-        @{Arg1="C:\sdsdsds\ffff";Arg2="cccc\sss";Expect=("C:{0}sdsdsds{0}ffff{0}cccc{0}sss" -f "$([System.IO.Path]::DirectorySeparatorChar)")},
+        @{Arg1="\sdsdsds\ffff";Arg2="cccc\sss";Expect=("{0}sdsdsds{0}ffff{0}cccc{0}sss" -f "$([System.IO.Path]::DirectorySeparatorChar)")},
         @{Arg1="sdsdsds\ffff";Arg2="cccc/sss";Expect=("sdsdsds{0}ffff{0}cccc{0}sss" -f "$([System.IO.Path]::DirectorySeparatorChar)")}
     ){
         $Arg1|Join-PathImproved $Arg2|Should -Be $Expect
@@ -53,5 +53,5 @@ Describe "Select-ObjectImproved" {
     }
 }
 AfterAll{
-    
+
 }
