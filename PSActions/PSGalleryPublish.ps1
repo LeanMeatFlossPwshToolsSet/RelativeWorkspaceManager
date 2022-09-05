@@ -27,7 +27,10 @@ $PublishOrderHash=@{
 }
 
 Get-ChildItem -Path "$($env:GITHUB_WORKSPACE)/$moduleBaseName" -Directory |ForEach-Object{    
-    $subModuleName=$_.Name    
+    $subModuleName=$_.Name   
+    if(-not $PublishOrderHash.ContainsKey($subModuleName)){
+        $PublishOrderHash[$subModuleName]=0
+    }     
     $moduleManifestFile=Import-PowerShellDataFile  "$($env:GITHUB_WORKSPACE)/$moduleBaseName/$subModuleName/$subModuleName.psd1"
     $moduleManifestFile.NestedModules|ForEach-Object{
         if(Test-Path "$($env:GITHUB_WORKSPACE)/$moduleBaseName/$subModuleName"){
@@ -45,7 +48,7 @@ Get-ChildItem -Path "$($env:GITHUB_WORKSPACE)/$moduleBaseName" -Directory |ForEa
         }
     }
 }
-
+$PublishOrderHash|Format-Table|Out-String|Write-Host
 
 
 Write-Host "
