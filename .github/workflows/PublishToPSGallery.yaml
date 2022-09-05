@@ -13,7 +13,7 @@ jobs:
           with:
             name: Pwsh JUnit Tests
             path: '.TestReports/*.xml'
-            reporter: jest-junit
+            reporter: java-junit
         - name: Script
           run: ./PSActions/PSGalleryPublish.ps1 -NugetKey ${{ secrets.PS_GALLERY }}
           shell: pwsh
