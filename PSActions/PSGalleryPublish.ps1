@@ -38,13 +38,13 @@ Get-ChildItem -Path "$($env:GITHUB_WORKSPACE)/$moduleBaseName" -Directory |ForEa
                 $PublishOrderHash[$_]=$PublishOrderHash[$_]+1
             }
             else{
-                $PublishOrderHash[$subModuleName]=1
+                $PublishOrderHash[$_]=1
             }
         }
         else{
-            if(-not (Test-Path "$($env:GITHUB_WORKSPACE)/tempModules/$subModuleName")){
-                New-Item "$($env:GITHUB_WORKSPACE)/tempModules/$subModuleName" -ItemType Directory
-                New-ModuleManifest -Path "$($env:GITHUB_WORKSPACE)/tempModules/$subModuleName/$subModuleName.psd1" -Verbose
+            if(-not (Test-Path "$($env:GITHUB_WORKSPACE)/tempModules/$_")){
+                New-Item "$($env:GITHUB_WORKSPACE)/tempModules/$_" -ItemType Directory
+                New-ModuleManifest -Path "$($env:GITHUB_WORKSPACE)/tempModules/$_/$_.psd1"
             }            
         }
     }
