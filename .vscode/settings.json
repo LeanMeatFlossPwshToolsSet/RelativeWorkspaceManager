@@ -1,5 +1,5 @@
 {
-    "powershell.pester.codeLens": false,
+    "powershell.pester.codeLens": true,
     "pester.autoRunOnSave": false,
     "python.defaultInterpreterPath": "C:\\Users\\ITQ2CS\\Miniconda3\\python.exe",
 }
