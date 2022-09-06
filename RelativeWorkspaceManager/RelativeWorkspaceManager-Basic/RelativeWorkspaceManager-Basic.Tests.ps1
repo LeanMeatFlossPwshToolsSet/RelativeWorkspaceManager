@@ -1,10 +1,18 @@
-# BeforeAll{
-#     $env:PSModulePath+=[IO.Path]::PathSeparator+(Resolve-Path "$PSScriptRoot/..")
-
-#     Import-Module RelativeWorkspaceManager-Basic -Force
-# }
-# Describe "Use-Workspace" {
-#     It "Test for Get-FileNameFromPath"{
-#         {"a"|Use-Workspace}|Should -Not -Throw
-#     }
-# }
+BeforeAll{
+    $currentTestModuleName=([System.IO.FileInfo]$PSCommandPath).Name.Replace(".Tests.ps1","")
+    $env:PSModulePath=(Resolve-Path "$PSScriptRoot/..").Path+[IO.Path]::PathSeparator+$env:PSModulePath
+    $moduleManifestFile=Import-PowerShellDataFile  "$PSScriptRoot/$currentTestModuleName.psd1"
+    # install dependency modules
+    $moduleManifestFile.NestedModules|Foreach-Object{
+        if(-not (Get-Module $_)){
+             # install them
+             Install-Module $_ -Force
+        }
+    }
+    Import-Module $currentTestModuleName -Force
+}
+Describe "Use-Workspace" {
+    It "Test for Get-FileNameFromPath"{
+        {"C:"|Use-Workspace}|Should -Not -Throw
+    }
+}

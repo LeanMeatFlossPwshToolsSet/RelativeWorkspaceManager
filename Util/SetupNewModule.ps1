@@ -15,7 +15,22 @@ $gitHostName=($gitUrl.replace(".git","") -split "/")[-2]
 
 Set-Location "$PSScriptRoot/../"
 New-Item -Path "./$moduleBaseName/$moduleBaseName-$ModuleName" -ItemType Directory -Force
-New-Item -Path "./$moduleBaseName/$moduleBaseName-$ModuleName/$moduleBaseName-$ModuleName.Tests.ps1" -ItemType File -Force
+New-Item -Path "./$moduleBaseName/$moduleBaseName-$ModuleName/$moduleBaseName-$ModuleName.Tests.ps1" -ItemType File -Force -Value @'
+BeforeAll{
+    $currentTestModuleName=([System.IO.FileInfo]$PSCommandPath).Name.Replace(".Tests.ps1","")
+    $env:PSModulePath=(Resolve-Path "$PSScriptRoot/..").Path+[IO.Path]::PathSeparator+$env:PSModulePath
+    $moduleManifestFile=Import-PowerShellDataFile  "$PSScriptRoot/$currentTestModuleName.psd1"
+    # install dependency modules
+    $moduleManifestFile.NestedModules|Foreach-Object{
+        if(-not (Get-Module $_)){
+             # install them
+             Install-Module $_ -Force
+             Update-Module $_
+        }
+    }
+    Import-Module $currentTestModuleName -Force
+}
+'@
 New-Item -Path "./$moduleBaseName/$moduleBaseName-$ModuleName/Module" -ItemType Directory -Force
 New-Item -Path "./$moduleBaseName/$moduleBaseName-$ModuleName/Module/$moduleBaseName-$ModuleName.psm1" -ItemType File -Force
 # New-Item -Path "./$moduleBaseName/$moduleBaseName-$ModuleName/Script" -ItemType Directory -Force
