@@ -116,7 +116,7 @@ function New-FileToRelativePath{
         $Value
     )
     process{
-        New-Item ($RelativePath|Get-FullPathFromRelativePathToWorkspace) -ItemType File -Value $Value
+        New-Item ($RelativePath|Get-FullPathFromRelativePathToWorkspace) -ItemType File -Value $Value -Force
     }
 }
 function Get-ContentFromRelativePath{
@@ -143,10 +143,15 @@ function Out-FileToRelativePath{
         $Content
     )
     begin{
-        $RelativePath|New-FileToRelativePath        
+        # $RelativePath|New-FileToRelativePath     
+        $StringBuffer=[System.Collections.ArrayList]@()   
     }
     process{
-        $Content|Out-File -FilePath ($RelativePath|Get-FullPathFromRelativePathToWorkspace) -Force:$Force -Append
+        $StringBuffer.Add($Content)
+        
+    }
+    end{
+        ($StringBuffer -join "`n")|Out-File -FilePath ($RelativePath|Get-FullPathFromRelativePathToWorkspace) -Force:$Force
     }
 }
 function Resolve-DirWithRelativePath{
