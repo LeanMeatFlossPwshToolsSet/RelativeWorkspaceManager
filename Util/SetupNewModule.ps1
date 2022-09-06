@@ -21,7 +21,7 @@ BeforeAll{
     $env:PSModulePath=(Resolve-Path "$PSScriptRoot/..").Path+[IO.Path]::PathSeparator+$env:PSModulePath
     $moduleManifestFile=Import-PowerShellDataFile  "$PSScriptRoot/$currentTestModuleName.psd1"
     # install dependency modules
-    $moduleManifestFile.NestedModules|Foreach-Object{
+    $moduleManifestFile.RequiredModules|Foreach-Object{
         if(-not (Get-Module $_)){
              # install them
              Install-Module $_ -Force
@@ -57,5 +57,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-"@ -FunctionsToExport ("*") -CmdletsToExport ("*") -LicenseUri "https://raw.githubusercontent.com/$gitHostName/$gitRepoName/main/LICENSE" -RootModule "Module/$moduleBaseName-$ModuleName.psm1"  -NestedModules "$moduleBaseName-Basic"
+"@ -FunctionsToExport ("*") -CmdletsToExport ("*") -LicenseUri "https://raw.githubusercontent.com/$gitHostName/$gitRepoName/main/LICENSE" -RootModule "Module/$moduleBaseName-$ModuleName.psm1"  -RequiredModules "$moduleBaseName-Basic"
 Set-Location $initLocation

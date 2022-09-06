@@ -96,6 +96,16 @@ function Get-RelativePathToWorkspace{
         $FullPath|Get-RelativePath -RootPath (Get-CurrentWorkspace)
     }
 }
+function Remove-ItemFromRelativePath{
+    param(
+        [parameter(ValueFromPipeline)]    
+        [string]
+        $RelativePath
+    )
+    process{
+        $RelativePath|Get-FullPathFromRelativePathToWorkspace|Remove-Item -Recurse -Force
+    }
+}
 function New-FileToRelativePath{
     param(    
         [parameter(ValueFromPipeline)]    
@@ -134,5 +144,24 @@ function Out-FileToRelativePath{
     )
     process{
         $Content|Out-File -FilePath ($RelativePath|Get-FullPathFromRelativePathToWorkspace) -Force:$Force
+    }
+}
+function Resolve-DirWithRelativePath{
+    param(
+        [parameter(ValueFromPipeline)]
+        [string]
+        $SubFolderName,
+        [switch]
+        $Force
+    )
+    process{
+        $newPath=$SubFolderName|Get-FullPathFromRelativePathToWorkspace
+        if($Force){
+            Remove-Item $newPath -Recurse -Force -ErrorAction Continue
+        }
+        if(-not (Test-Path ($newPath))){
+            New-Item -Path ($newPath) -ItemType Directory|Out-Null
+        }
+        return $SubFolderName  
     }
 }
