@@ -3,7 +3,7 @@ BeforeAll{
     $env:PSModulePath=(Resolve-Path "$PSScriptRoot/..").Path+[IO.Path]::PathSeparator+$env:PSModulePath
     $moduleManifestFile=Import-PowerShellDataFile  "$PSScriptRoot/$currentTestModuleName.psd1"
     # install dependency modules
-    $moduleManifestFile.NestedModules|Foreach-Object{
+    $moduleManifestFile.RequiredModules|Foreach-Object{
         if(-not (Get-Module $_)){
              # install them
              Install-Module $_ -Force
