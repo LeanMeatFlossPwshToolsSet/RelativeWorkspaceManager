@@ -143,7 +143,7 @@ function Out-FileToRelativePath{
         $Content
     )
     begin{
-        ""|Out-File -FilePath ($RelativePath|Get-FullPathFromRelativePathToWorkspace) -Force:$Force
+        $RelativePath|New-FileToRelativePath        
     }
     process{
         $Content|Out-File -FilePath ($RelativePath|Get-FullPathFromRelativePathToWorkspace) -Force:$Force -Append
