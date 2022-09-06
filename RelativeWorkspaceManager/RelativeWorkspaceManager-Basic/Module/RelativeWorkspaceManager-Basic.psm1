@@ -38,7 +38,7 @@ function Test-RelativePath{
         $RelativeFilePath
     )
     process{
-        return Test-Path ($RelativeFilePath|Get-FullPathFromRelativePathToSource)
+        return Test-Path ($RelativeFilePath|Get-FullPathFromRelativePathToWorkspace)
     }
 }
 function Get-AllChildInRelativePath{
@@ -81,7 +81,7 @@ function Get-AllChildInRelativePath{
     )
     process{
         if(Test-RelativePath $RelativePath){
-            $RelativePath|Get-FullPathFromRelativePathToSource|Get-ChildItem -Recurse:$Recurse
+            $RelativePath|Get-FullPathFromRelativePathToWorkspace|Get-ChildItem -Recurse:$Recurse
         }
         
     }
