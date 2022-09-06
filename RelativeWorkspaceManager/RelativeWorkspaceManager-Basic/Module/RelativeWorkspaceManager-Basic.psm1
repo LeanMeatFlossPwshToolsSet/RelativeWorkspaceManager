@@ -29,6 +29,16 @@ function Get-FullPathFromRelativePathToWorkspace{
         Get-CurrentWorkspace|Join-PathImproved "$RelativePath"
     }
 }
+function Test-RelativePath{
+    param(
+        [Parameter(ValueFromPipeline)]
+        [string]
+        $RelativeFilePath
+    )
+    process{
+        return Test-Path ($RelativeFilePath|Get-FullPathFromRelativePathToSource)
+    }
+}
 function Get-AllChildInRelativePath{
     param(
         [Parameter(ValueFromPipeline,Mandatory)]
