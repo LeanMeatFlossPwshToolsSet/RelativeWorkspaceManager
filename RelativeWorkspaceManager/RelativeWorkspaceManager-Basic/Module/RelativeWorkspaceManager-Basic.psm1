@@ -4,6 +4,7 @@ function Use-Workspace{
         [Parameter(ValueFromPipeline)]
         [string]
         $ProjectRootPath,
+        [Parameter(Position=1)]
         [scriptblock]
         $Process
     )    
