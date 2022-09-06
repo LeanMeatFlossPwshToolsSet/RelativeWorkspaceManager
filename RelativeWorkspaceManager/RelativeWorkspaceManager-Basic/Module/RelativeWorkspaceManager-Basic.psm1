@@ -9,7 +9,7 @@ function Use-Workspace{
         $Process
     )    
     process{
-        $lastIndex=$Script:WorkSpacesStack.Add(Resolve-PathImproved -Path $ProjectRootPath)
+        $lastIndex=$Script:WorkSpacesStack.Add((Resolve-PathImproved -Path $ProjectRootPath))
         if($Process){
             &$Process
         }        
