@@ -144,14 +144,14 @@ function Out-FileToRelativePath{
     )
     begin{
         # $RelativePath|New-FileToRelativePath     
-        $StringBuffer=[System.Collections.ArrayList]@()   
+        # $StringBuffer=[System.Collections.ArrayList]@()   
     }
     process{
-        $StringBuffer.Add($Content)
+        ($Content)|Out-File -FilePath ($RelativePath|Get-FullPathFromRelativePathToWorkspace) -Force:$Force
         
     }
     end{
-        ($StringBuffer -join "`n")|Out-File -FilePath ($RelativePath|Get-FullPathFromRelativePathToWorkspace) -Force:$Force
+        
     }
 }
 function Resolve-DirWithRelativePath{
