@@ -16,6 +16,24 @@ function Use-Workspace{
         $Script:WorkSpacesStack.Remove($lastIndex)
     }
 }
+function Use-RelativeLocation{
+    param (
+        [Parameter(ValueFromPipeline)]
+        [string]
+        $LocationInRelativePath="",
+        [Parameter(Position=1)]
+        [scriptblock]
+        $Process
+    ) 
+    process{
+        $Location=Get-Location
+        Set-Location ($LocationInRelativePath|Get-FullPathFromRelativePathToWorkspace)
+        if($Process){
+            &$Process
+        } 
+        Set-Location  $Location
+    }
+}
 function Get-CurrentWorkspace{
     process{
         return $Script:WorkSpacesStack[-1]
