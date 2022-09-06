@@ -97,13 +97,11 @@ function Get-RelativePathToWorkspace{
     }
 }
 function New-FileToRelativePath{
-    param(    
-        [parameter(ValueFromPipeline,ParameterSetName="PathPipeline")]    
+    param(              
         [string]
         $RelativePath,
         [string]
         $ItemName,
-        [parameter(ValueFromPipeline,ParameterSetName="ValuePipeline")]
         [string]
         $Value
     )
