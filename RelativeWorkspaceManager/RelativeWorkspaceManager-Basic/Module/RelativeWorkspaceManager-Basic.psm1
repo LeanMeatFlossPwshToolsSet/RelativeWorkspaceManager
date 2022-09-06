@@ -142,8 +142,11 @@ function Out-FileToRelativePath{
         [string]
         $Content
     )
+    begin{
+        ""|Out-File -FilePath ($RelativePath|Get-FullPathFromRelativePathToWorkspace) -Force:$Force
+    }
     process{
-        $Content|Out-File -FilePath ($RelativePath|Get-FullPathFromRelativePathToWorkspace) -Force:$Force
+        $Content|Out-File -FilePath ($RelativePath|Get-FullPathFromRelativePathToWorkspace) -Force:$Force -Append
     }
 }
 function Resolve-DirWithRelativePath{
