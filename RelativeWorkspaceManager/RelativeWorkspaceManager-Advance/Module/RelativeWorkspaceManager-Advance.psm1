@@ -7,10 +7,12 @@ function Use-WorkspaceItemLock{
         [scriptblock]
         $Process,
         [int]
-        $WaitSeconds=1
+        $WaitSeconds=1,
+        [string]
+        $LocksPath=".Locks"
     )
     begin{
-        $locksPath="Locks"|Resolve-DirWithRelativePath
+        $LocksPath=$LocksPath|Resolve-DirWithRelativePath
     }
     process{
         $uid=New-Guid
@@ -19,7 +21,7 @@ function Use-WorkspaceItemLock{
             while ($lockFilePath|Test-RelativePath) {
                 Start-Sleep -Seconds $WaitSeconds
             }
-            New-FileToRelativePath -RelativePath $lockFilePath -Value $uid
+            New-FileToRelativePath -RelativePath $lockFilePath -Value $uid|Out-Null
             if(($lockFilePath|Get-ContentFromRelativePath -Raw)-eq $uid){
                 break
             }
@@ -29,15 +31,4 @@ function Use-WorkspaceItemLock{
         }         
         $lockFilePath|Remove-ItemFromRelativePath
     }
-}
-function Use-Lock{
-    param(
-        [string]
-        $RelativePath,
-        [switch]
-        $Force,
-        [parameter(ValueFromPipeline)]
-        [string]
-        $Content
-    )
 }
