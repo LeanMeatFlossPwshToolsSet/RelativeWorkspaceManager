@@ -96,6 +96,21 @@ function Get-RelativePathToWorkspace{
         $FullPath|Get-RelativePath -RootPath (Get-CurrentWorkspace)
     }
 }
+function New-FileToRelativePath{
+    param(    
+        [parameter(ValueFromPipeline,ParameterSetName="PathPipeline")]    
+        [string]
+        $RelativePath,
+        [string]
+        $ItemName,
+        [parameter(ValueFromPipeline,ParameterSetName="ValuePipeline")]
+        [string]
+        $Value
+    )
+    process{
+        New-Item ($RelativePath|Get-FullPathFromRelativePathToWorkspace) -ItemType File -Value $Value
+    }
+}
 function Get-ContentFromRelativePath{
     param(
         [parameter(ValueFromPipeline)]
@@ -105,7 +120,7 @@ function Get-ContentFromRelativePath{
         $Raw
     )
     process{
-        $RelativePath|Get-FullPathFromRelativePathToWorkspace|Get-Content -Raw:$Raw
+        $RelativePath|Get-FullPathFromRelativePathToWorkspace|Get-Content -Path {$_} -Raw:$Raw
     }
 }
 function Out-FileToRelativePath{
