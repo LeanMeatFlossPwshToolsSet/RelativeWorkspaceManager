@@ -9,6 +9,9 @@ function Use-Workspace{
         $Process
     )    
     process{
+        if(-not (Test-Path $ProjectRootPath)){
+            New-Item $ProjectRootPath -ItemType Directory|Out-Null
+        }
         $lastIndex=$Script:WorkSpacesStack.Add((Resolve-PathImproved -Path $ProjectRootPath))
         if($Process){
             &$Process
