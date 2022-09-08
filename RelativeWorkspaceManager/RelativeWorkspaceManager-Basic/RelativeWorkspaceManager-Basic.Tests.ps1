@@ -13,6 +13,6 @@ BeforeAll{
 }
 Describe "Use-Workspace" {
     It "Test for Get-FileNameFromPath"{
-        {"C:"|Use-Workspace}|Should -Not -Throw
+        {""|Use-Workspace}|Should -Not -Throw
     }
 }
