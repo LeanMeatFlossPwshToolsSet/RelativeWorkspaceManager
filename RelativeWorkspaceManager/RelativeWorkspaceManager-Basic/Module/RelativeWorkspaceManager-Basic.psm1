@@ -11,6 +11,7 @@ function Use-Workspace{
     process{
         if(-not (Test-Path $ProjectRootPath)){
             New-Item $ProjectRootPath -ItemType Directory|Out-Null
+            Write-Host "Create Workspace $ProjectRootPath"
         }
         $lastIndex=$Script:WorkSpacesStack.Add((Resolve-PathImproved -Path $ProjectRootPath))
         if($Process){
